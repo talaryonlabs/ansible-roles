@@ -1,0 +1,20 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./mailu/
+  register: main_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: ./mailu/
+    state: directory
+    owner: optiwi
+    recurse: yes
+  when: not main_directory.stat.exists
+
+- name: Copy environment file
+  ansible.builtin.template:
+    src: "mailu.env.j2"
+    dest: ./mailu/.env
+    owner: optiwi
+    mode: '0644'

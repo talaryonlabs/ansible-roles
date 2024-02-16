@@ -1,0 +1,47 @@
+---
+# tasks file for docker
+- name: "Install required packages"
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: true
+
+- name: Add Docker GPG key
+  apt_key:
+    url: "{{ docker_gpg_url }}"
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "{{ docker_repo_url }}"
+    state: present
+    filename: docker
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Install Docker module for python
+  pip:
+    name: docker
+
+- name: Add users to group docker
+  user: 
+    name: "{{ item }}"
+    groups: "docker"
+    append: true
+  loop: "{{ docker_users }}"

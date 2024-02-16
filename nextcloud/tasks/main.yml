@@ -1,0 +1,9 @@
+---
+# tasks file for nextcloud
+- name: Install/Update Nextcloud
+  when: role_state == "present"
+  include_tasks: install.yml
+
+- name: Remove Nextcloud
+  when: role_state == "absent"
+  include_tasks: uninstall.yml

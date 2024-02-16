@@ -1,0 +1,11 @@
+---
+# defaults file for docker
+docker_users: []
+docker_architecture: amd64 # arm64
+#docker_version: latest
+docker_gpg_url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+docker_repo_url: >-
+  deb [arch={{ docker_architecture }}] 
+  https://download.docker.com/linux/{{ ansible_distribution | lower }} 
+  {{ ansible_lsb.codename }} 
+  stable

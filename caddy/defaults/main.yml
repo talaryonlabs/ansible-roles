@@ -1,0 +1,9 @@
+---
+# defaults file for caddy
+role_state: present
+
+caddy_tag: 2.7.5-alpine
+caddy_image: "caddy"
+caddy_network_members: []
+caddy_file: Caddyfile
+caddy_sites: {}

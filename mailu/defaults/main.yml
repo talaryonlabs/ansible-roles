@@ -1,0 +1,142 @@
+---
+# defaults file for mailu
+
+role_state: present
+
+mailu_tag: 2.0
+mailu_image_base: ghcr.io/mailu
+
+# Redis
+redis_tag: alpine
+redis_image: "docker.io/library/redis"
+
+###################################
+# Common configuration variables
+###################################
+
+# Initial password for admin account
+initialPassword: m4i1u
+# Set to a randomly generated 16 bytes string
+secretKey:
+# Main mail domain
+domain:
+# Hostnames for this server, separated with comas
+hostnames: 
+# Subnet of the docker network. This should not conflict with any networks to which your system is connected. (Internal and external!)
+subnet: 172.23.0.0/16
+# Postmaster local part (will append the main mail domain)
+postmaster: admin
+# Choose how secure connections will behave (value: letsencrypt, cert, notls, mail, mail-letsencrypt)
+tlsFlavor: mail-letsencrypt
+# Authentication rate limit per IP (per /24 on ipv4 and /48 on ipv6)
+authRateLimitIp: 5/hour
+# Authentication rate limit per user (regardless of the source-IP)
+authRateLimitUser: 50/day
+# Opt-out of statistics, replace with "True" to opt out
+disableStatistics: "true"
+
+
+###################################
+# Optional features
+###################################
+
+# Expose the admin interface (value: true, false)
+admin: "true"
+# Choose which webmail to run if any (values: roundcube, snappymail, none)
+webmail: roundcube
+# Expose the API interface (value: true, false)
+api: "false"
+# Dav server implementation (value: radicale, none)
+webdav: radicale
+# Antivirus solution (value: clamav, none)
+antivirus: clamav
+# Scan Macros solution (value: true, false)
+scanMacros: "true"
+
+
+###################################
+# Mail settings
+###################################
+
+# Message size limit in bytes
+# Default: accept messages up to 50MB
+# Max attachment size will be 33% smaller
+messageSizeLimit: 50000000
+# Message rate limit (per user)
+messageRateLimit: 200/day
+# Networks granted relay permissions
+# Use this with care, all hosts in this networks will be able to send mail without authentication!
+relayNets:
+# Will relay all outgoing mails if configured
+relayHosts:
+
+# Enable fetchmail
+fetchmailEnabled: "true"
+# Fetchmail delay
+fetchmailDelay: 600
+# Recipient delimiter, character used to delimiter localpart from custom address part
+recipientDelimeter: +
+# DMARC rua and ruf email
+dmarcRua: admin
+dmarcRuf: admin
+
+# Welcome email, enable and set a topic and body if you wish to send welcome
+# emails to all users.
+welcome: "false"
+welcomeSubject: Welcome to your new email account
+welcomeBody: Welcome to your new email account, if you can read this, then it is configured properly!
+
+# Maildir Compression
+# choose compression-method, default: none (value: gz, bz2, zstd)
+compression:
+# change compression-level, default: 6 (value: 1-9)
+compressionLevel:
+
+
+###################################
+# Web settings
+###################################
+
+# Path to redirect / to
+webRootRedirect: /webmail
+# Path to the admin interface if enabled
+webAdmin: /admin
+# Path to the webmail if enabled
+webWebmail: /webmail
+# Path to the API interface if enabled
+webApi: /api
+
+# Website name
+siteName: Mailu Role
+# Linked Website URL
+siteUrl: 
+
+
+###################################
+# Advanced settings
+###################################
+
+# Docker-compose project name, this will prepended to containers names.
+composeProjectName: mailu
+# Number of rounds used by the password hashing scheme
+credentialRounds: 12
+# Header to take the real ip from
+realIpHeader: X-Real-IP
+# IPs for nginx set_real_ip_from (CIDR list separated by commas)
+realIpFrom: 172.18.0.0/16
+
+# choose wether mailu bounces (no) or rejects (yes) mail when recipient is unknown (value: yes, no)
+rejectUnlistedRecipient:
+
+# Log level threshold in start.py (value: CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)
+logLevel: WARNING
+
+# Timezone for the Mailu containers. See this link for all possible values https://en.wikipedia.org/wiki/List_of_tz_database_time>
+TZ: Europe/Vienna
+
+# Default spam threshold used for new users
+defaultSpamThreshold: 80
+
+# API token required for authenticating to the RESTful API.
+# This is a mandatory setting for using the RESTful API.
+apiToken:

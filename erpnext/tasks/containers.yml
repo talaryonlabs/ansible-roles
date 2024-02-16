@@ -1,0 +1,197 @@
+---
+# ERPNext Containers
+#
+# Cache (Redis)
+- name: Container Cache
+  community.docker.docker_container:
+    name: erpnext-redis-cache
+    hostname: erpnext-redis-cache
+    image: "{{ redis_image }}:{{ redis_tag }}"
+    command: --save 60 1 --loglevel warning
+    restart_policy: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ./erpnext/redis/cache:/data
+    networks:
+      - name: erpnext
+
+- name: Container Queue Cache
+  community.docker.docker_container:
+    name: erpnext-redis-queue
+    hostname: erpnext-redis-queue
+    image: "{{ redis_image }}:{{ redis_tag }}"
+    command: --save 60 1 --loglevel warning
+    restart_policy: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ./erpnext/redis/queue:/data
+    networks:
+      - name: erpnext
+
+# Database (mariadb)
+- name: Container Database
+  community.docker.docker_container:
+    name: erpnext-database
+    hostname: erpnext-database
+    image: "{{ mariadb_image }}:{{ mariadb_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/database/data:/var/lib/mysql
+      - ./erpnext/mysql.cnf:/etc/mysql/conf.d/frappe.cnf
+    networks:
+      - name: erpnext
+
+# Queue
+- name: Container Queue (long)
+  community.docker.docker_container:
+    name: erpnext-queue-long
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: bench worker --queue long,default,short
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+
+- name: Container Queue (short)
+  community.docker.docker_container:
+    name: erpnext-queue-short
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: bench worker --queue short,default
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      
+# Scheduler
+- name: Container Scheduler
+  community.docker.docker_container:
+    name: erpnext-scheduler
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: bench schedule
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      
+# Websocket
+- name: Container Websocket
+  community.docker.docker_container:
+    name: erpnext-websocket
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+
+# Init Container
+- name: Init Container configurator
+  community.docker.docker_container:
+    name: erpnext-init
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: bash -c 'ls -1 apps > sites/apps.txt; bench set-config -g db_host $DB_HOST; bench set-config -gp db_port $DB_PORT; bench set-config -g redis_cache "redis://$REDIS_CACHE";bench set-config -g redis_queue "redis://$REDIS_QUEUE";bench set-config -g redis_socketio "redis://$REDIS_QUEUE";bench set-config -gp socketio_port $SOCKETIO_PORT;'
+    restart_policy: on-failure
+    env_file: ./erpnext/.env
+    init: true
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      
+# ERPNext
+- name: Container ERPNext
+  community.docker.docker_container:
+    name: erpnext-core
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      - name: erpnext_inet
+
+# Frontend
+- name: Container Frontend
+  community.docker.docker_container:
+    name: erpnext-frontend
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: nginx-entrypoint.sh
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      - name: proxy
+
+# Console
+- name: Container console
+  community.docker.docker_container:
+    name: erpnext-console
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: bash
+    interactive: true
+    restart_policy: unless-stopped
+    env_file: ./erpnext/.env
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+      - name: erpnext_inet
+
+#
+# Create Site
+#
+- name: Check if site exists
+  stat:
+    path: "./erpnext/sites/{{ frappeSiteNameHeader }}"
+  register: site_directory
+
+- name: Create site {{ frappeSiteNameHeader }}
+  community.docker.docker_container:
+    name: erpnext-create-site
+    image: "{{ erpnext_image }}:{{ erpnext_tag }}"
+    command: >
+      bench new-site {{ frappeSiteNameHeader }} --no-mariadb-socket 
+        --admin-password={{ initialAdminPassword }} 
+        --db-root-password={{ mariadbRootPassword }} 
+        --install-app erpnext 
+        --install-app erpnextaustria 
+        --set-default
+    restart_policy: on-failure
+    env_file: ./erpnext/.env
+    init: true
+    volumes:
+      - ./erpnext/sites:/home/frappe/frappe-bench/sites
+      - ./erpnext/logs:/home/frappe/frappe-bench/logs
+    networks:
+      - name: erpnext
+  when: not site_directory.stat.exists

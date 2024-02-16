@@ -1,0 +1,29 @@
+---
+# defaults file for mariadb
+mariadb_tag: latest
+mariadb_image: "docker.io/library/mariadb:{{ mariadb_tag }}"
+
+
+mariadbRootPassword:
+mariadbRootPasswordHash:
+mariadbAllowEmptyPassword:
+mariadbRandomRootPassword:
+
+mariadbRootHost: "%"
+mariadbDatabase:
+mariadbUser:
+mariadbPassword:
+
+mariadbMysqlLocalhostUser:
+mariadbMysqlLocalhostGrants:
+
+mariadbHealthCheckGrants:
+mariadbInitDbSkipTZInfo:
+
+mariadbAutoUpgrade:
+mariadbDisableUpgradeBackup:
+
+mariadbMasterHost:
+mariadbReplicationUser:
+mariadbReplicationPassword:
+mariadbReplicationPasswordHash:

@@ -1,0 +1,15 @@
+- name: "Remove containers"
+  community.docker.docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "caddy"
+
+- name: "Cleanup images and networks"
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

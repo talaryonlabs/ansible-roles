@@ -1,0 +1,44 @@
+---
+# Directus Containers
+#
+# Cache (Redis)
+- name: Container Cache
+  community.docker.docker_container:
+    name: "{{ role_id }}-cache"
+    hostname: "{{ role_id }}-cache"
+    image: "{{ redis_image }}:{{ redis_tag }}"
+    command: redis-server
+    restart_policy: unless-stopped
+    volumes:
+      - ./{{ role_id }}/cache:/data
+    networks:
+      - name: "{{ role_id }}"
+
+# Database (mariadb)
+- name: Container Database
+  community.docker.docker_container:
+    name: "{{ role_id }}-database"
+    hostname: "{{ role_id }}-database"
+    image: "{{ mariadb_image }}:{{ mariadb_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./{{ role_id }}/database.env
+    volumes:
+      - ./{{ role_id }}/mysql:/var/lib/mysql
+      - ./{{ role_id }}/mysql-config.cnf:/etc/mysql/conf.d/mysql-config.cnf
+    networks:
+      - name: "{{ role_id }}"
+
+# Directus
+- name: Container Directus
+  community.docker.docker_container:
+    name: "{{ role_id }}-api"
+    image: "{{ directus_image }}:{{ directus_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./{{ role_id }}/directus.env
+    volumes:
+      - ./{{ role_id }}/uploads:/directus/uploads
+      # - ./{{ role_id }}/database:/directus/database # if sqlite is used
+      - ./{{ role_id }}/extensions:/directus/extensions
+    networks:
+      - name: "{{ role_id }}"
+      - name: proxy

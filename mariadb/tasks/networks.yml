@@ -1,0 +1,6 @@
+---
+- name: Create network database
+  community.docker.docker_network:
+    name: database
+    state: present
+    internal: true

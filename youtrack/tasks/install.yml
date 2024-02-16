@@ -1,0 +1,7 @@
+---
+- name: Install YouTrack
+  block:
+    - include_tasks: prepare.yml
+    - include_tasks: images.yml
+    #- include_tasks: networks.yml # Don't need a network
+    - include_tasks: containers.yml

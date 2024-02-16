@@ -1,0 +1,9 @@
+---
+- name: Pulling images
+  community.docker.docker_image_pull:
+    name: "{{ item }}"
+    pull: not_present
+  loop:
+    - "{{ postgres_image }}:{{ postgres_tag }}"
+    - "{{ redis_image }}:{{ redis_tag }}"
+    - "{{ authentik_image }}:{{ authentik_tag }}"

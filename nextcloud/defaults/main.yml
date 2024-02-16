@@ -1,0 +1,90 @@
+---
+# defaults file for nextcloud
+role_state: present
+
+mariadb_tag: 10.6.7
+mariadb_image: docker.io/library/mariadb
+
+nextcloud_tag: stable
+nextcloud_image: docker.io/library/nextcloud
+
+redis_tag: alpine
+redis_image: docker.io/library/redis
+
+#
+# MariaDB
+#
+mariadbRootPassword:
+
+#
+# Nextcloud
+#
+sqliteDatabase:
+
+mysqlDatabase: nextcloud
+mysqlUser: nextcloud
+mysqlPassword: 
+mysqlHost: nextcloud-database:3306
+
+postgresDatabase:
+postgresUser:
+postgresPassword:
+postgresHost:
+
+nextcloudAdminUser: admin
+nextcloudAdminPassword:
+
+nextcloudDataDir: /var/www/html/data
+nextcloudTrustedDomains:
+nextcloudUpdate: "0"
+nextcloudInitLock:
+nextcloudInitHtaccess:
+
+redisHost: nextcloud-cache
+redisPort: 6379
+redisPassword: r3d1sp4ss
+
+smtpHost:
+smtpSecure:
+smtpPort:
+smtpAuthType: LOGIN
+smtpName:
+smtpPassword:
+
+mailFromAddress:
+mailDomain:
+
+objectStoreS3Host:
+objectStoreS3Bucket:
+objectStoreS3Key:
+objectStoreS3Secret:
+objectStoreS3Port:
+objectStoreS3Ssl: "true"
+objectStoreS3Region:
+objectStoreS3UsePathStyle: "false"
+objectStoreS3LegacyAuth: "false"
+objectStoreS3ObjectPrefix: "urn:oid:"
+objectStoreS3AutoCreate: "true"
+
+objectStoreSwiftUrl:
+objectStoreSwiftAutoCreate: "false"
+objectStoreSwiftUserName:
+objectStoreSwiftUserPassword:
+objectStoreSwiftUserDomain: Default
+objectStoreSwiftProjectName: swift
+objectStoreSwiftProjectDomain: Default
+objectStoreSwiftServiceName: swift
+objectStoreSwiftRegion:
+objectStoreSwiftContainerName:
+
+phpMemoryLimit: 2048M
+phpUploadLimit: 512M
+
+apacheDisableRewriteIp: "1"
+trustedProxies: caddy
+
+overwriteHost:
+overwriteProtocol:
+overwriteCliUrl:
+overwriteWebRoot:
+overwriteCondAddr:

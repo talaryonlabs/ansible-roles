@@ -1,0 +1,17 @@
+---
+# tasks file for common
+- name: Remove not used packages
+  ansible.builtin.package:
+    name:
+      - apache2
+      - exim4
+      - exim4-base
+    state: absent
+    force: true
+
+- name: Add common apps
+  ansible.builtin.package:
+    name:
+      - nano
+    state: latest
+    force: true

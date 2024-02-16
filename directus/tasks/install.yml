@@ -1,0 +1,7 @@
+---
+- name: Install Directus
+  block:
+    - include_tasks: prepare.yml
+    - include_tasks: images.yml
+    - include_tasks: networks.yml
+    - include_tasks: containers.yml

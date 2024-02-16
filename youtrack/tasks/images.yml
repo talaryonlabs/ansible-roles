@@ -1,0 +1,6 @@
+---
+- name: Pulling images
+  community.docker.docker_image_pull:
+    name: "{{ item }}"
+  loop:
+    - "{{ youtrack_image }}:{{ youtrack_tag }}"

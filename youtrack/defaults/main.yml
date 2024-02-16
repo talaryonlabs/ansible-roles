@@ -1,0 +1,6 @@
+---
+# defaults file for youtrack
+role_state: present
+
+youtrack_tag: 2023.3.24329
+youtrack_image: jetbrains/youtrack

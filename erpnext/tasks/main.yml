@@ -1,0 +1,9 @@
+---
+# tasks file for erpnext
+- name: Install/Update ERPNext
+  when: role_state == "present"
+  include_tasks: install.yml
+
+- name: Remove ERPNext
+  when: role_state == "absent"
+  include_tasks: uninstall.yml

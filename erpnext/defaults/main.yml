@@ -1,0 +1,38 @@
+---
+# defaults file for erpnext
+role_state: present
+
+mariadb_tag: 10.6.7
+mariadb_image: docker.io/library/mariadb
+
+redis_tag: alpine
+redis_image: docker.io/library/redis
+
+erpnext_tag: v14.63.0-1
+erpnext_image: talaryonlabs/erpnext
+
+
+#
+# ERPNext configuration
+#
+mariadbRootPassword: 
+frappeSiteNameHeader: 
+sites: 
+initialAdminPassword: erpn3xtpassw0rd
+
+dbHost: erpnext-database
+dbPort: 3306
+
+socketio: erpnext-websocket:9000
+socketioPort: 9000
+backend: erpnext-core:8000
+redisCache: erpnext-redis-cache:6379
+redisQueue: erpnext-redis-queue:6379
+
+upstreamRealIpAddress: 127.0.0.1
+upstreamRealIpHeader: X-Forwarded-For
+upstreamRealIpRecursive: "off"
+
+proxyReadTimeout: 120
+
+clientMaxBodySize: 50m

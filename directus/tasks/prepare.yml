@@ -1,0 +1,47 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./{{ role_id }}/
+  register: main_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: "./{{ role_id }}/{{ item }}/"
+    state: directory
+    owner: optiwi
+    recurse: true
+  loop:
+    #- database # When using SQLite
+    - uploads
+    - extensions
+  when: not main_directory.stat.exists
+
+- name: Set directory permissions
+  ansible.builtin.file:
+    path: "./{{ role_id }}/{{ item }}"
+    owner: 1000
+    group: 1000
+    recurse: true
+  loop:
+    - uploads
+    - extensions
+  become: true
+
+- include_tasks: secrets.yml
+
+- name: Copy environment files
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "./{{ role_id }}/{{ item }}"
+    owner: optiwi
+    mode: '0644'
+  loop:
+    - database.env
+    - directus.env
+
+- name: Copy database config file
+  ansible.builtin.copy:
+    src: mysql-config.cnf
+    dest: ./{{ role_id }}/mysql-config.cnf
+    owner: optiwi
+    mode: '0644'

@@ -1,0 +1,27 @@
+- name: "Remove containers"
+  community.docker.docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "erpnext-core"
+    - "erpnext-init"
+    - "erpnext-redis-cache"
+    - "erpnext-redis-queue"
+    - "erpnext-scheduler"
+    - "erpnext-websocket"
+    - "erpnext-queue-long"
+    - "erpnext-queue-short"
+    - "erpnext-frontend"
+    - "erpnext-database"
+    - "erpnext-console"
+    - "erpnext-create-site"
+
+
+- name: "Cleanup images and networks"
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

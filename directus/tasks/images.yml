@@ -1,0 +1,8 @@
+---
+- name: Pulling images
+  community.docker.docker_image_pull:
+    name: "{{ item }}"
+  loop:
+    - "{{ mariadb_image }}:{{ mariadb_tag }}"
+    - "{{ redis_image }}:{{ redis_tag }}"
+    - "{{ directus_image }}:{{ directus_tag }}"

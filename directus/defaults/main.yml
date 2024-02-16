@@ -1,0 +1,49 @@
+---
+# defaults file for directus
+role_state: present
+role_id: directus
+
+mariadb_tag: 10.6.7
+mariadb_image: docker.io/library/mariadb
+
+directus_tag: 10.9.0
+directus_image: directus/directus
+
+redis_tag: alpine
+redis_image: docker.io/library/redis
+
+#
+# MariaDB
+#
+mariadbRootPassword: 
+
+#
+# Directus
+#
+mysqlDatabase: "{{ directusKey }}"
+mysqlUser: directus
+mysqlPassword: 
+mysqlHost: "{{ role_id }}-database"
+mysqlPort: 3306
+
+directusKey: directus-id
+directusSecret: 
+
+directusAdminEmail: admin@example.com
+directusAdminPassword: d1r3ctu5
+
+corsEnabled: "true"
+hstsEnabled: "true"
+
+cacheEnabled: "true"
+cacheStore: redis
+redis: "redis://{{ role_id }}-cache:6379"
+
+
+
+# Make sure to set this in production
+# (see https://docs.directus.io/self-hosted/config-options#general)
+publicUrl: 
+
+authProviders: []
+authDisableDefault: false

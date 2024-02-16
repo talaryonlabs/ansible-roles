@@ -1,0 +1,16 @@
+(cors) {
+  @origin{args.0} header Origin {args.0}
+  header @origin{args.0} Access-Control-Allow-Origin "{args.0}"
+  header @origin{args.0} Vary Origin
+}
+
+(hsts) {
+  header Strict-Transport-Security max-age=63072000
+}
+
+
+:80 {
+    respond "Talaryon Caddy Role"
+}
+
+import /config/sites/*

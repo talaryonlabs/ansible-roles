@@ -1,0 +1,12 @@
+---
+- name: Create network
+  community.docker.docker_network:
+    name: erpnext
+    state: present
+    internal: true
+
+- name: Create network inet
+  community.docker.docker_network:
+    name: erpnext_inet
+    state: present
+    internal: false

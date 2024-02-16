@@ -1,0 +1,6 @@
+---
+- name: Create network
+  community.docker.docker_network:
+    name: youtrack
+    state: present
+    internal: true

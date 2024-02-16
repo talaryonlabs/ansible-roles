@@ -1,0 +1,57 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./erpnext/
+  register: main_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: "./{{ item }}/"
+    state: directory
+    owner: optiwi
+    recurse: yes
+  loop:
+    - "erpnext/logs"
+    - "erpnext/sites"
+    - "erpnext/database"
+  when: not main_directory.stat.exists
+
+- name: Set directory permissions
+  ansible.builtin.file:
+    path: "./erpnext/{{ item }}"
+    owner: 1000
+    group: 1000
+    recurse: true
+  loop:
+    - logs
+    - sites
+  become: true
+
+- name: Copy environment file
+  ansible.builtin.template:
+    src: erpnext.env.j2
+    dest: ./erpnext/.env
+    owner: optiwi
+    mode: '0644'
+
+- name: Copy database config file
+  ansible.builtin.copy:
+    src: mysql.cnf
+    dest: ./erpnext/mysql.cnf
+    owner: optiwi
+    mode: '0644'
+
+- name: Check if common_site_config.json exists
+  stat:
+    path: ./erpnext/sites/common_site_config.json
+  register: config_file
+
+- name: Copy common_site_config.json file
+  ansible.builtin.copy:
+    src: files/common_site_config.json
+    dest: ./erpnext/sites/common_site_config.json
+    owner: 1000
+    group: 1000
+    mode: '0644'
+  become: true
+  when: not config_file.stat.exists

@@ -1,0 +1,22 @@
+---
+- name: Pulling Redis image version={{ redis_tag }}
+  community.docker.docker_image_pull:
+    name: "{{ redis_image }}:{{ redis_tag }}"
+    pull: not_present
+
+- name: Pulling Mailu images version={{ mailu_tag }}
+  community.docker.docker_image_pull:
+    name: "{{ mailu_image_base }}/{{ item }}:{{ mailu_tag }}"
+    pull: not_present
+  loop:
+    - nginx
+    - unbound
+    - admin
+    - dovecot
+    - postfix
+    - oletools
+    - rspamd
+    - clamav
+    - radicale
+    - fetchmail
+    - webmail

@@ -1,0 +1,44 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./nextcloud/
+  register: main_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: "./nextcloud/{{ item }}/"
+    state: directory
+    owner: optiwi
+    recurse: yes
+  loop:
+    - apps
+    - data
+  when: not main_directory.stat.exists
+
+- name: Set directory permissions
+  ansible.builtin.file:
+    path: "./nextcloud/{{ item }}"
+    owner: 33
+    group: 33
+    recurse: true
+  loop:
+    - apps
+    - data
+  become: true
+
+- name: Copy environment files
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "./nextcloud/{{ item }}"
+    owner: optiwi
+    mode: '0644'
+  loop:
+    - database.env
+    - nextcloud.env
+
+- name: Copy database config file
+  ansible.builtin.copy:
+    src: mysql-config.cnf
+    dest: ./nextcloud/mysql-config.cnf
+    owner: optiwi
+    mode: '0644'

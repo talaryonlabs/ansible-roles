@@ -1,0 +1,43 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./authentik/
+  register: main_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: "./authentik/{{ item }}/"
+    state: directory
+    owner: optiwi
+    recurse: yes
+  loop:
+    - media
+    - custom-templates
+    - certs
+  when: not main_directory.stat.exists
+
+- name: Set directory permissions
+  ansible.builtin.file:
+    path: "./authentik/{{ item }}"
+    owner: 1000
+    group: 1000
+    recurse: true
+  loop:
+    - media
+    - custom-templates
+    - certs
+  become: true
+
+- name: Copy environment file
+  ansible.builtin.template:
+    src: "authentik.env.j2"
+    dest: ./authentik/.env
+    owner: optiwi
+    mode: '0644'
+
+- name: Copy email logo
+  ansible.builtin.copy:
+    src: "{{ authentik_email.logo }}"
+    dest: ./authentik/icon_left_brand.png
+    owner: optiwi
+    mode: '0644'

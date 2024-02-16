@@ -1,0 +1,9 @@
+---
+# tasks file for youtrack
+- name: Install/Update YouTrack
+  when: role_state == "present"
+  include_tasks: install.yml
+
+- name: Remove YouTrack
+  when: role_state == "absent"
+  include_tasks: uninstall.yml

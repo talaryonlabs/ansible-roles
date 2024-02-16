@@ -1,0 +1,20 @@
+---
+- name: Check if directory exists
+  stat:
+    path: ./mariadb/
+  register: mariadb_directory
+
+- name: Prepare main directory
+  ansible.builtin.file:
+    path: ./mariadb/
+    state: directory
+    owner: optiwi
+    recurse: yes
+  when: not mariadb_directory.stat.exists
+
+- name: Copy environment file
+  ansible.builtin.template:
+    src: "mariadb.env.j2"
+    dest: ./mariadb/.env
+    owner: optiwi
+    mode: '0644'

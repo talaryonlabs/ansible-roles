@@ -1,0 +1,20 @@
+---
+- name: Create network mailu {{ subnet }}
+  community.docker.docker_network:
+    name: mailu
+    #force: true
+    ipam_driver: default
+    ipam_config:
+      - subnet: "{{ subnet }}"
+
+- name: Create network radicale, webmail
+  community.docker.docker_network:
+    name: "{{ item }}"
+  loop:
+    - radicale
+    - webmail
+
+- name: Create network noinet
+  community.docker.docker_network:
+    name: noinet
+    internal: true

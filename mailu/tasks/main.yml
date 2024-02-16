@@ -1,0 +1,9 @@
+---
+# tasks file for mailu
+- name: Install/Update Mailu
+  when: role_state == "present"
+  include_tasks: install.yml
+
+- name: Remove Mailu
+  when: role_state == "absent"
+  include_tasks: uninstall.yml

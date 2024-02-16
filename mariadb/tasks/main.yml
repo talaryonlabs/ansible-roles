@@ -1,0 +1,6 @@
+---
+# tasks file for mariadb
+- include_tasks: prepare.yml
+- include_tasks: images.yml
+- include_tasks: networks.yml
+- include_tasks: services.yml

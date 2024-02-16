@@ -1,0 +1,26 @@
+- name: "Remove containers"
+  community.docker.docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ composeProjectName }}-redis"
+    - "{{ composeProjectName }}-front"
+    - "{{ composeProjectName }}-admin"
+    - "{{ composeProjectName }}-imap"
+    - "{{ composeProjectName }}-smtp"
+    - "{{ composeProjectName }}-resolver"
+    - "{{ composeProjectName }}-webmail"
+    - "{{ composeProjectName }}-oletools"
+    - "{{ composeProjectName }}-antivirus"
+    - "{{ composeProjectName }}-antispam"
+    - "{{ composeProjectName }}-webdav"
+    - "{{ composeProjectName }}-fetchmail"
+
+- name: "Cleanup images and networks"
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: false
+    networks: true
+    volumes: true
+    builder_cache: true

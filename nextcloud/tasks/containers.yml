@@ -1,0 +1,45 @@
+---
+# Nextcloud Containers
+#
+# Cache (Redis)
+- name: Container Cache
+  community.docker.docker_container:
+    name: nextcloud-cache
+    hostname: nextcloud-cache
+    image: "{{ redis_image }}:{{ redis_tag }}"
+    command: redis-server --requirepass {{ redisPassword }}
+    restart_policy: unless-stopped
+    volumes:
+      - ./nextcloud/cache:/data
+    networks:
+      - name: nextcloud
+
+# Database (mariadb)
+- name: Container Database
+  community.docker.docker_container:
+    name: nextcloud-database
+    hostname: nextcloud-database
+    image: "{{ mariadb_image }}:{{ mariadb_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./nextcloud/database.env
+    volumes:
+      - ./nextcloud/mysql:/var/lib/mysql
+      - ./nextcloud/mysql-config.cnf:/etc/mysql/conf.d/mysql-config.cnf
+    networks:
+      - name: nextcloud
+
+# Nextcloud
+- name: Container Nextcloud
+  community.docker.docker_container:
+    name: nextcloud-app
+    image: "{{ nextcloud_image }}:{{ nextcloud_tag }}"
+    restart_policy: unless-stopped
+    env_file: ./nextcloud/nextcloud.env
+    volumes:
+      - nextcloud:/var/www/html
+      - ./nextcloud/apps:/var/www/html/custom_apps
+      #- ./nextcloud/config:/var/www/html/config
+      - ./nextcloud/data:/var/www/html/data
+    networks:
+      - name: nextcloud
+      - name: proxy

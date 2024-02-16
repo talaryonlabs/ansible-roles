@@ -1,0 +1,233 @@
+---
+#
+# Redis
+#
+- name: Container Redis
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-redis"
+    image: "{{ redis_image }}"
+    command: --save 60 1 --loglevel warning
+    restart_policy: unless-stopped
+    hostname: redis
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ./mailu/redis:/data
+    networks:
+      - name: mailu
+    dns_servers:
+      - 172.23.0.254
+
+#
+# DNS Resolver
+#
+- name: "Container Resolver"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-resolver"
+    image: "{{ mailu_image_base }}/unbound:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    networks:
+      - name: mailu
+        ipv4_address: 172.23.0.254
+
+#
+# Frontend (Nginx)
+#
+- name: "Container Nginx"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-front"
+    image: "{{ mailu_image_base }}/nginx:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    #recreate: true
+    hostname: front
+    log_driver: journald
+    log_options:
+      tag: "{{ composeProjectName }}-front"
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "110:110"
+      - "995:995"
+      - "143:143"
+      - "993:993"
+    networks:
+      - name: mailu
+      - name: webmail
+      - name: radicale
+      - name: proxy
+    volumes:
+      - "./mailu/certs:/certs"
+      - "./mailu/overrides/nginx:/overrides:ro"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# Admin
+#
+- name: "Container Admin"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-admin"
+    image: "{{ mailu_image_base }}/admin:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: admin
+    log_driver: journald
+    log_options:
+      tag: "{{ composeProjectName }}-admin"
+    networks:
+      - name: mailu
+    volumes:
+      - "./mailu/data:/data"
+      - "./mailu/dkim:/dkim"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# IMAP (Dovecot)
+#
+- name: "Container Dovecot(IMAP)"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-imap"
+    image: "{{ mailu_image_base }}/dovecot:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: imap
+    log_driver: journald
+    log_options:
+      tag: "{{ composeProjectName }}-imap"
+    networks:
+      - name: mailu
+    volumes:
+      - "./mailu/mail:/mail"
+      - "./mailu/overrides/dovecot:/overrides:ro"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# SMTP (Postfix)
+#
+- name: "Container Postfix(SMTP)"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-smtp"
+    image: "{{ mailu_image_base }}/postfix:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: smtp
+    log_driver: journald
+    log_options:
+      tag: "{{ composeProjectName }}-smtp"
+    networks:
+      - name: mailu
+    volumes:
+      - "./mailu/mailqueue:/queue"
+      - "./mailu/overrides/postfix:/overrides:ro"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# oletools
+#
+- name: "Container oletools"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-oletools"
+    image: "{{ mailu_image_base }}/oletools:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: oletools
+    networks:
+      - name: noinet
+    dns_servers:
+      - 172.23.0.254
+
+#
+# Antispam (rspamd)
+#
+- name: "Container rspamd"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-antispam"
+    image: "{{ mailu_image_base }}/rspamd:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: antispam
+    log_driver: journald
+    log_options:
+      tag: "{{ composeProjectName }}-antispam"
+    networks:
+      - name: mailu
+      - name: noinet
+    volumes:
+      - "./mailu/filter:/var/lib/rspamd"
+      - "./mailu/overrides/rspamd:/overrides:ro"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# Antivirus (clamav)
+#
+- name: "Container clamav"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-antivirus"
+    image: "{{ mailu_image_base }}/clamav:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: antivirus
+    networks:
+      - name: mailu
+    volumes:
+      - "./mailu/filter:/data"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# Webdav (radicale)
+#
+- name: "Container radicale"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-webdav"
+    image: "{{ mailu_image_base }}/radicale:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: webdav
+    networks:
+      - name: radicale
+    volumes:
+      - "./mailu/dav:/data"
+
+#
+# Fetchmail 
+#
+- name: "Container Fetchmail"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-fetchmail"
+    image: "{{ mailu_image_base }}/fetchmail:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: fetchmail
+    networks:
+      - name: mailu
+    volumes:
+      - "./mailu/data/fetchmail:/data"
+    dns_servers:
+      - 172.23.0.254
+
+#
+# Webmail 
+#
+- name: "Container Webmail"
+  community.docker.docker_container:
+    name: "{{ composeProjectName }}-webmail"
+    image: "{{ mailu_image_base }}/webmail:{{ mailu_tag }}"
+    env_file: ./mailu/.env
+    restart_policy: unless-stopped
+    hostname: webmail
+    networks:
+      - name: webmail
+    volumes:
+      - "./mailu/webmail:/data"
+      - "./mailu/overrides/roundcube:/overrides:ro"

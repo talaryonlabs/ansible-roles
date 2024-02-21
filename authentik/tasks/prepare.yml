@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "./authentik/{{ item }}/"
     state: directory
-    owner: optiwi
+    owner: "{{ role_user }}"
     recurse: yes
   loop:
     - media
@@ -32,12 +32,12 @@
   ansible.builtin.template:
     src: "authentik.env.j2"
     dest: ./authentik/.env
-    owner: optiwi
+    owner: "{{ role_user }}"
     mode: '0644'
 
 - name: Copy email logo
   ansible.builtin.copy:
     src: "{{ authentik_email.logo }}"
     dest: ./authentik/icon_left_brand.png
-    owner: optiwi
+    owner: "{{ role_user }}"
     mode: '0644'

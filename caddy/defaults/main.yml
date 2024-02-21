@@ -1,6 +1,7 @@
 ---
 # defaults file for caddy
 role_state: present
+role_user: root
 
 caddy_tag: 2.7.5-alpine
 caddy_image: "caddy"

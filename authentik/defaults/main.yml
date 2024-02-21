@@ -1,6 +1,7 @@
 ---
 # defaults file for authentik
 role_state: present
+role_user: root
 
 # Authentik
 authentik_tag: 2023.10.7

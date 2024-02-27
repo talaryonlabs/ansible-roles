@@ -39,16 +39,17 @@
     mode: '0644'
   loop: "{{ caddy_sites | dict2items }}"
 
+- name: Combine volume lists
+  set_fact:
+    caddy_volumes_combined: "{{ defaultVolumes|default([]) + caddy_volumes|default([]) }}"
+
 - name: Running Caddy
   community.docker.docker_container:
     name: caddy
     hostname: caddy
     image: "{{ caddy_image }}:{{ caddy_tag }}"
     restart_policy: unless-stopped
-    volumes:
-      - ./caddy/data:/data
-      - ./caddy/config:/config
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    volumes: "{{ caddy_volumes_combined }}"
     ports:
       - 80:80
       - 443:443

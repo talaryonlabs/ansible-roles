@@ -8,3 +8,9 @@ caddy_image: "caddy"
 caddy_network_members: []
 caddy_file: Caddyfile
 caddy_sites: {}
+caddy_volumes: []
+
+defaultVolumes:
+  - ./caddy/data:/data
+  - ./caddy/config:/config
+  - ./caddy/Caddyfile:/etc/caddy/Caddyfile
